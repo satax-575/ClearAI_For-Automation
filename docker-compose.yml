@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FIREBASE_CREDENTIALS_PATH=/app/firebase-credentials.json
+      - POSTGRES_URL=postgresql://clearpath:clearpath@postgres:5432/clearpath
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+    volumes:
+      - ./backend:/app
+      - ./firebase-credentials.json:/app/firebase-credentials.json:ro
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - clearpath-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=clearpath
+      - POSTGRES_USER=clearpath
+      - POSTGRES_PASSWORD=clearpath
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - clearpath-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - clearpath-network
+
+  # Frontend (for local development)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
+      - VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - clearpath-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  clearpath-network:
+    driver: bridge
