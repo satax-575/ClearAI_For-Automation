@@ -37,7 +37,7 @@ class FirebaseService:
         except:
             return False
     
-    async def upload_document(
+    def upload_document(
         self, 
         doc_id: str, 
         content: bytes, 
@@ -75,7 +75,7 @@ class FirebaseService:
         except Exception as e:
             raise Exception(f"Firestore save failed: {str(e)}")
     
-    async def get_document_metadata(self, doc_id: str) -> Optional[Dict[str, Any]]:
+    def get_document_metadata(self, doc_id: str) -> Optional[Dict[str, Any]]:
         """Retrieve document metadata"""
         try:
             doc = self.db.collection('documents').document(doc_id).get()
@@ -94,7 +94,7 @@ class FirebaseService:
         except Exception as e:
             raise Exception(f"Declaration save failed: {str(e)}")
     
-    async def get_declaration(self, declaration_id: str) -> Optional[Dict[str, Any]]:
+    def get_declaration(self, declaration_id: str) -> Optional[Dict[str, Any]]:
         """Retrieve customs declaration"""
         try:
             doc = self.db.collection('declarations').document(declaration_id).get()
@@ -120,10 +120,10 @@ class FirebaseService:
         except Exception as e:
             raise Exception(f"Query failed: {str(e)}")
     
-    async def get_user_analytics(self, user_id: str) -> Dict[str, Any]:
+    def get_user_analytics(self, user_id: str) -> Dict[str, Any]:
         """Get analytics for user dashboard"""
         try:
-            declarations = await self.get_user_declarations(user_id, limit=1000)
+            declarations = self.get_user_declarations(user_id, limit=1000)
             
             total_shipments = len(declarations)
             total_value = sum(d.get("total_value", 0) for d in declarations)

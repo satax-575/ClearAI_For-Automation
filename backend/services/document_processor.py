@@ -3,7 +3,7 @@ Document processing utilities
 Handles document type detection and data merging
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import re
 
 class DocumentProcessor:

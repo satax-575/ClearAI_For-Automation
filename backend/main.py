@@ -146,7 +146,7 @@ async def upload_document(
         )
         
         # Store in Firebase
-        storage_url = await firebase_service.upload_document(
+        storage_url = firebase_service.upload_document(
             doc_id, 
             content, 
             file.filename, 
@@ -154,7 +154,7 @@ async def upload_document(
         )
         
         # Save metadata
-        await firebase_service.save_document_metadata(
+        firebase_service.save_document_metadata(
             doc_id,
             {
                 "filename": file.filename,
@@ -197,7 +197,7 @@ async def generate_declaration(
         # Retrieve documents
         documents = []
         for doc_id in document_ids:
-            doc = await firebase_service.get_document_metadata(doc_id)
+            doc = firebase_service.get_document_metadata(doc_id)
             if not doc:
                 raise HTTPException(status_code=404, detail=f"Document {doc_id} not found")
             documents.append(doc)
@@ -269,7 +269,7 @@ async def generate_declaration(
         }
         
         # Save declaration
-        await firebase_service.save_declaration(declaration_id, declaration)
+        firebase_service.save_declaration(declaration_id, declaration)
         
         logger.info(f"Declaration generated: {declaration_id}")
         
@@ -286,7 +286,7 @@ async def generate_declaration(
 async def get_declaration(declaration_id: str):
     """Retrieve a customs declaration by ID"""
     try:
-        declaration = await firebase_service.get_declaration(declaration_id)
+        declaration = firebase_service.get_declaration(declaration_id)
         if not declaration:
             raise HTTPException(status_code=404, detail="Declaration not found")
         return declaration
@@ -369,7 +369,7 @@ async def get_regulations(country_code: str):
 async def get_analytics(user_id: str):
     """Get user analytics dashboard data"""
     try:
-        analytics = await firebase_service.get_user_analytics(user_id)
+        analytics = firebase_service.get_user_analytics(user_id)
         return analytics
     except Exception as e:
         logger.error(f"Analytics retrieval failed: {str(e)}")
